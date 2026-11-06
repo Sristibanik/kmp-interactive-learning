@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KMP Interactive Learning Lab</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<header><div class="badge">KMP INTERACTIVE LEARNING LAB</div><h1>Knuth–Morris–Pratt Pattern Matching</h1>
+<p>Learn → Visualise → Experiment → Check</p><div class="progress"><div id="bar"></div></div></header>
+<nav><button onclick="show('learn')">1. Learn</button><button onclick="show('lps')">2. Build LPS</button><button onclick="show('visual')">3. Visualise</button><button onclick="show('code')">4. Code</button><button onclick="show('quiz')">5. Quiz</button></nav>
+<main>
+<section id="learn" class="section active">
+<div class="card"><h2>🎯 The problem</h2><p>Given a <b>text</b> and a <b>pattern</b>, find where the pattern occurs in the text.</p>
+<div class="example">Text: ABABDABACDABABCABAB<br>Pattern: ABABCABAB</div></div>
+<div class="grid"><div class="card"><h3>Naive approach</h3><p>After a mismatch, it may repeat comparisons from the beginning.</p></div>
+<div class="card"><h3>KMP approach</h3><p>Reuse information from the pattern so we do not restart unnecessarily.</p></div></div>
+<div class="card"><h2>💡 Key idea: LPS</h2><p><b>LPS</b> = Longest Proper Prefix which is also a Suffix.</p><p>It tells KMP how much of the pattern can be reused after a mismatch.</p><button class="primary" onclick="show('lps')">Build LPS →</button></div>
+</section>
+<section id="lps" class="section"><div class="card"><h2>🧩 Build the LPS array</h2><p>Enter a pattern and generate its LPS values.</p>
+<div class="controls"><input id="lp" value="ABABCABAB"><button class="primary" onclick="build()">Generate LPS</button></div><div id="out"></div></div>
+<div class="card"><p><b>Example:</b> In ABAB, “AB” is both a prefix and suffix, so LPS = 2.</p><button class="primary" onclick="show('visual')">Try visualiser →</button></div></section>
+<section id="visual" class="section"><div class="card"><h2>🎮 Interactive KMP visualiser</h2><p>Enter your own text and pattern and move through comparisons.</p>
+<div class="controls"><label>Text <input id="txt" value="ABABDABACDABABCABAB"></label><label>Pattern <input id="pat" value="ABABCABAB"></label>
+<button class="primary" onclick="start()">Start</button><button onclick="next()">Next step</button><button onclick="reset()">Reset</button></div>
+<div id="status" class="status">Press Start.</div><div id="view"></div></div>
+<div class="card"><p><b>Observe:</b> on a mismatch, KMP uses LPS instead of restarting from zero.</p></div></section>
+<section id="code" class="section"><div class="card"><h2>🐍 Python implementation</h2>
+<pre><code>def compute_lps(pattern):
+    lps = [0] * len(pattern)
+    length = 0
+    i = 1
+    while i &lt; len(pattern):
+        if pattern[i] == pattern[length]:
+            length += 1
+            lps[i] = length
+            i += 1
+        elif length:
+            length = lps[length - 1]
+        else:
+            lps[i] = 0
+            i += 1
+    return lps
+
+def kmp_search(text, pattern):
+    lps = compute_lps(pattern)
+    i = j = 0
+    matches = []
+    while i &lt; len(text):
+        if text[i] == pattern[j]:
+            i += 1; j += 1
+            if j == len(pattern):
+                matches.append(i - j)
+                j = lps[j - 1]
+        elif j:
+            j = lps[j - 1]
+        else:
+            i += 1
+    return matches</code></pre></div>
+<div class="grid"><div class="card"><h3>Time</h3><p><b>O(n + m)</b>: LPS is O(m), search is O(n).</p></div>
+<div class="card"><h3>Space</h3><p><b>O(m)</b>: the LPS array stores m values.</p></div></div></section>
+<section id="quiz" class="section"><div class="card"><h2>🧠 Knowledge check</h2><div id="quiz"></div><button class="primary" onclick="check()">Submit quiz</button><div id="result"></div></div>
+<div class="card"><h2>💻 Mini challenge</h2><p>Predict the LPS array for <b>A A B A A B</b>.</p><button onclick="document.getElementById('ans').classList.toggle('hidden')">Reveal answer</button><p id="ans" class="hidden"><b>[0, 1, 0, 1, 2, 3]</b></p></div></section>
+</main><footer>Interactive learning artifact — KMP Pattern Matching</footer><script src="script.js"></script></body></html>
